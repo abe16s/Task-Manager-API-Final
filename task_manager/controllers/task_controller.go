@@ -10,14 +10,18 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func GetTasks(c *gin.Context) {
-	tasks := services.GetTasks()
+type TaskController struct {
+	Service services.TaskService
+}
+
+func (con *TaskController) GetTasks(c *gin.Context) {
+	tasks := con.Service.GetTasks()
 	c.IndentedJSON(http.StatusOK, tasks)
 }
 
-func GetTaskById(c *gin.Context) {
+func (con *TaskController) GetTaskById(c *gin.Context) {
 	id := c.Param("id")
-	task, err := services.GetTaskById(id)
+	task, err := con.Service.GetTaskById(id)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Task Not Found"})
 		return
@@ -26,7 +30,7 @@ func GetTaskById(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, task)
 }
 
-func UpdateTaskByID(c *gin.Context) {
+func (con *TaskController) UpdateTaskByID(c *gin.Context) {
 	id := c.Param("id")
 
 	var updatedTask models.Task
@@ -62,7 +66,7 @@ func UpdateTaskByID(c *gin.Context) {
 	  }
 	
 
-	task, err := services.UpdateTaskByID(id, updatedTask)
+	task, err := con.Service.UpdateTaskByID(id, updatedTask)
 
 	if err != nil && err.Error() == "task not found" {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Task Not Found"})
@@ -75,9 +79,9 @@ func UpdateTaskByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, task)
 }
 
-func DeleteTask(c *gin.Context) {
+func (con *TaskController) DeleteTask(c *gin.Context) {
 	id := c.Param("id")
-	deletedTask, err := services.DeleteTask(id)
+	deletedTask, err := con.Service.DeleteTask(id)
 	if err == nil {
 		c.IndentedJSON(http.StatusAccepted, deletedTask)
 		return
@@ -85,7 +89,7 @@ func DeleteTask(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Task Not Found"})
 }
 
-func AddTask(c *gin.Context) {
+func (con *TaskController) AddTask(c *gin.Context) {
 	var newTask models.Task
 	if err := c.ShouldBindJSON(&newTask); err != nil {
 
@@ -122,6 +126,6 @@ func AddTask(c *gin.Context) {
 	resourceLocation := fmt.Sprintf("%s%s/%s", baseURL, c.Request.URL.Path, newTask.ID)
 	c.Header("Location", resourceLocation)
 
-	task := services.AddTask(newTask)
+	task := con.Service.AddTask(newTask)
 	c.IndentedJSON(http.StatusCreated, task)
 }

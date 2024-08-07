@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/models"
+	// "go.mongodb.org/mongo-driver/bson"
+    "go.mongodb.org/mongo-driver/mongo"    
 )
 
 var tasks = []models.Task{
@@ -14,11 +16,18 @@ var tasks = []models.Task{
 	{ID: "3", Title: "Task 3", Description: "Third task", DueDate: time.Now().AddDate(0, 0, 2), Status: "Completed"},
 }
 
-func GetTasks() []models.Task {
+
+type TaskService struct {
+	Client *mongo.Client 
+}
+
+
+
+func (s *TaskService) GetTasks() []models.Task {
 	return tasks
 }
 
-func GetTaskById(id string) (*models.Task, error) {
+func (s *TaskService) GetTaskById(id string) (*models.Task, error) {
 	for _, val := range tasks {
 		if val.ID == id {
 			return &val, nil
@@ -27,8 +36,8 @@ func GetTaskById(id string) (*models.Task, error) {
 	return nil, errors.New("task not found")
 }
 
-func UpdateTaskByID(id string, updateTask models.Task) (*models.Task, error) {
-	task, err := GetTaskById(id)
+func (s *TaskService) UpdateTaskByID(id string, updateTask models.Task) (*models.Task, error) {
+	task, err := s.GetTaskById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +56,7 @@ func UpdateTaskByID(id string, updateTask models.Task) (*models.Task, error) {
 	return task, nil
 }
 
-func DeleteTask(id string) (*models.Task, error) {
+func (s *TaskService) DeleteTask(id string) (*models.Task, error) {
 	for i, val := range tasks {
 		if val.ID == id {
 			tasks = append(tasks[:i], tasks[i+1:]...)
@@ -57,7 +66,7 @@ func DeleteTask(id string) (*models.Task, error) {
 	return nil, errors.New("task not found")
 }
 
-func AddTask(task models.Task) *models.Task {
+func (s *TaskService) AddTask(task models.Task) *models.Task {
 	newId := strconv.Itoa(len(tasks) + 1)
 	task.ID = newId
 	if task.Status == "" {
