@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	clientOptions := options.Client().ApplyURI("mongodb+srv://abeni:mongo123$@firstcluster.ae90a.mongodb.net/")
+	clientOptions := options.Client().ApplyURI("")
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 
