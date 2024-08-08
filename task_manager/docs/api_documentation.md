@@ -14,7 +14,15 @@ This endpoint makes an HTTP GET request to localhost:8080/tasks to retrieve a li
 
 
 ```json
-[{"id":"","title":"","description":"","due_date":"","status":""}]
+[
+  {
+    "id":"uuid",
+    "title":"string",
+    "description":"string",
+    "due_date":"string (ISO 8601 format)",
+    "status":"string"
+  }
+]
 ```
 
 ### Example
@@ -59,17 +67,17 @@ This endpoint retrieves a specific task by its ID.
 #### Response
 * Status: 200
 * Content-Type: application/json
-* { "id": "", "title": "", "description": "", "due_date": "", "status": ""}
+* { "id": "uuid", "title": "string", "description": "string", "due_date": "string  (ISO 8601 format)", "status": "string"}
 
 #### Example Response
 
 ```JSON
 {
-    "id": "",
-    "title": "",
-    "description": "",
-    "due_date": "",
-    "status": ""
+    "id":"uuid",
+    "title":"string",
+    "description":"string",
+    "due_date":"string (ISO 8601 format)",
+    "status":"string"
 }
 ```
 
@@ -85,7 +93,7 @@ The request body should be in raw format and include the following parameters:
 * Title (string): The updated title of the task.
 * description (string): The updated description of the task.
 * status (string): The updated status of the task.
-* due_date (string): The updated due date of the task.
+* due_date (string (ISO 8601 format)): The updated due date of the task.
 
 #### Response
 Upon successful execution, the endpoint returns a status code of 201 and a JSON object with the updated details of the task, including the following properties:
@@ -93,16 +101,16 @@ Upon successful execution, the endpoint returns a status code of 201 and a JSON 
 * title (string): The title of the task.
 * description (string): The description of the task.
 * due_date (string): The due date of the task.
-* status (string): The status of the task.
+* status (string (ISO 8601 format)): The status of the task.
 
 #### Example Response
 ```JSON
 {
-    "id": "",
-    "title": "",
-    "description": "",
-    "due_date": "",
-    "status": ""
+    "id":"uuid",
+    "title":"string",
+    "description":"string",
+    "due_date":"string (ISO 8601 format)",
+    "status":"string"
 }
 ```
 
