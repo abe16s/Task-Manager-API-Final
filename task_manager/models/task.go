@@ -1,11 +1,14 @@
 package models
 
-import "time"
+import (
+	"time"
+	"github.com/google/uuid"
+)
 
 type Task struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title" binding:"required"`
-	Description string    `json:"description" binding:"required"`
-	DueDate     time.Time `json:"due_date" binding:"required"`
-	Status      string    `json:"status"`
+	ID          uuid.UUID   `bson:"_id" json:"_id"`
+	Title       string    	`bson:"title" json:"title" binding:"required"`
+	Description string    	`bson:"description" json:"description" binding:"required"`
+	DueDate     time.Time 	`bson:"due_date" json:"due_date" binding:"required"`
+	Status      string    	`bson:"status" json:"status"`
 }

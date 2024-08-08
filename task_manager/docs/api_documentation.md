@@ -1,3 +1,11 @@
+# Task Management Service
+
+A task management service built with Go and MongoDB, providing functionality for adding, updating, deleting, and retrieving tasks. This service offers a RESTful API for managing tasks and demonstrates the use of MongoDB for data storage.
+
+## Configuration
+
+Before running the application, ensure you have a MongoDB instance running. Update the database connection string in main.go where it is set with clientOptions := options.Client().ApplyURI("").
+
 ## GET - GetAllTasks
 
 localhost:8080/tasks
@@ -22,14 +30,14 @@ curl --location 'localhost:8080/tasks'
 ```JSON
 [
     {
-        "id": "1",
+        "id": "9e484920-0871-49a3-9bcf-2b9a29e7ec09",
         "title": "Task 1",
         "description": "First task",
         "due_date": "2024-08-06T14:40:10.331133+03:00",
         "status": "Pending"
     },
     {
-        "id": "2",
+        "id": "9e484920-0871-49a3-9bcf-2b9a29e7ec09",
         "title": "Task 2",
         "description": "Second task",
         "due_date": "2024-08-07T14:40:10.331133+03:00",
@@ -111,20 +119,8 @@ This endpoint is used to delete a specific task identified by its ID.
 
 #### Response
 
-* Status: 202
-* Content Type: application/json
-* { "id": "", "title": "", "description": "", "due_date": "", "status": ""}
+* Status: 200
 
-#### Example Response
-```JSON
-{
-  "id": "",
-  "title": "",
-  "description": "",
-  "due_date": "",
-  "status": ""
-}
-```
 
 ## POST AddTask
 
@@ -148,7 +144,7 @@ The response is in JSON format with the following schema:
   "type": "object",
   "properties": {
     "id": {
-      "type": "string"
+      "type": "uuid"
     },
     "title": {
       "type": "string"

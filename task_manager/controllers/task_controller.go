@@ -3,11 +3,11 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/models"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/services"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 type TaskController struct {
@@ -15,12 +15,21 @@ type TaskController struct {
 }
 
 func (con *TaskController) GetTasks(c *gin.Context) {
-	tasks := con.Service.GetTasks()
+	tasks, err := con.Service.GetTasks()
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.IndentedJSON(http.StatusOK, tasks)
 }
 
 func (con *TaskController) GetTaskById(c *gin.Context) {
-	id := c.Param("id")
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid task ID"})
+		return
+	}
+
 	task, err := con.Service.GetTaskById(id)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Task Not Found"})
@@ -31,7 +40,11 @@ func (con *TaskController) GetTaskById(c *gin.Context) {
 }
 
 func (con *TaskController) UpdateTaskByID(c *gin.Context) {
-	id := c.Param("id")
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid task ID"})
+		return
+	}
 
 	var updatedTask models.Task
 
@@ -80,10 +93,15 @@ func (con *TaskController) UpdateTaskByID(c *gin.Context) {
 }
 
 func (con *TaskController) DeleteTask(c *gin.Context) {
-	id := c.Param("id")
-	deletedTask, err := con.Service.DeleteTask(id)
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid task ID"})
+		return
+	}
+
+	err = con.Service.DeleteTask(id)
 	if err == nil {
-		c.IndentedJSON(http.StatusAccepted, deletedTask)
+		c.Status(http.StatusOK)
 		return
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Task Not Found"})
@@ -126,6 +144,10 @@ func (con *TaskController) AddTask(c *gin.Context) {
 	resourceLocation := fmt.Sprintf("%s%s/%s", baseURL, c.Request.URL.Path, newTask.ID)
 	c.Header("Location", resourceLocation)
 
-	task := con.Service.AddTask(newTask)
+	task, err := con.Service.AddTask(newTask)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.IndentedJSON(http.StatusCreated, task)
 }

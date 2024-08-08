@@ -1,77 +1,146 @@
 package services
 
 import (
+	"context"
 	"errors"
-	"strconv"
+	"strings"
 	"time"
-
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/models"
-	// "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/mongo"    
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var tasks = []models.Task{
-	{ID: "1", Title: "Task 1", Description: "First task", DueDate: time.Now(), Status: "Pending"},
-	{ID: "2", Title: "Task 2", Description: "Second task", DueDate: time.Now().AddDate(0, 0, 1), Status: "In Progress"},
-	{ID: "3", Title: "Task 3", Description: "Third task", DueDate: time.Now().AddDate(0, 0, 2), Status: "Completed"},
-}
-
 
 type TaskService struct {
 	Client *mongo.Client 
 }
 
+func (s *TaskService) GetTasks() ([]models.Task, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+  
+	collection := s.Client.Database("task-management").Collection("tasks")
 
-
-func (s *TaskService) GetTasks() []models.Task {
-	return tasks
-}
-
-func (s *TaskService) GetTaskById(id string) (*models.Task, error) {
-	for _, val := range tasks {
-		if val.ID == id {
-			return &val, nil
-		}
-	}
-	return nil, errors.New("task not found")
-}
-
-func (s *TaskService) UpdateTaskByID(id string, updateTask models.Task) (*models.Task, error) {
-	task, err := s.GetTaskById(id)
+  
+	cursor, err := collection.Find(ctx, bson.D{{}})
 	if err != nil {
+  
+	  return nil, err
+	}
+  
+	defer cursor.Close(ctx)
+  
+	tasks := make([]models.Task,0)
+	for cursor.Next(ctx) {
+	  var task models.Task
+	  if err := cursor.Decode(&task); err != nil {
+  
+		return nil, err
+	  }
+	  tasks = append(tasks, task)
+	}
+  
+	if err := cursor.Err(); err != nil {
+  
+	  return nil, err
+	}
+  
+	return tasks, nil
+}
+
+func (s *TaskService) GetTaskById(id uuid.UUID) (*models.Task, error) {
+	
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+  
+	collection := s.Client.Database("task-management").Collection("tasks")
+	filter := bson.D{{Key: "_id", Value: id}}
+  
+	// Find a single document that matches the filter
+	var task models.Task
+	err := collection.FindOne(ctx, filter).Decode(&task)
+	if err != nil {
+	  if err == mongo.ErrNoDocuments {
+		return nil, errors.New("task Not Found")
+	  }
+	  return nil, err
+	}
+  
+	return &task, nil
+}
+
+func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask models.Task) (*models.Task, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	collection := s.Client.Database("task-management").Collection("tasks")
+  
+	if strings.ToLower(updatedTask.Status) != "in progress" && strings.ToLower(updatedTask.Status) != "completed" && strings.ToLower(updatedTask.Status) != "pending" {
+	  return nil, errors.New("status error")
+	}
+	filter := bson.D{{Key: "_id", Value: id}}
+  
+	update := bson.D{
+	  {Key: "$set", Value: bson.D{
+		{Key: "title", Value: updatedTask.Title},
+		{Key: "description", Value: updatedTask.Description},
+		{Key: "due_date", Value: updatedTask.DueDate},
+		{Key: "status", Value: updatedTask.Status},
+	  }},
+	}
+
+	// Update the document that matches the filter
+	result :=  collection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
+	if result.Err() != nil {
+		if result.Err() == mongo.ErrNoDocuments {
+			return nil, errors.New("task not found")
+		}
+		return nil, result.Err()
+	}
+  
+	var utask models.Task
+	if err := result.Decode(&utask); err != nil {
 		return nil, err
 	}
-
-	task.Title = updateTask.Title
-
-	if updateTask.Status == "Pending" || updateTask.Status == "In Progress" || updateTask.Status == "Completed" {
-		task.Status = updateTask.Status
-	} else if updateTask.Status != "" {
-		return nil, errors.New("status must be 'Pending' or 'In Progress' or 'Completed'")
-	}
-
-	task.Description = updateTask.Description
-	task.DueDate = updateTask.DueDate
-
-	return task, nil
+	return &utask, nil
 }
 
-func (s *TaskService) DeleteTask(id string) (*models.Task, error) {
-	for i, val := range tasks {
-		if val.ID == id {
-			tasks = append(tasks[:i], tasks[i+1:]...)
-			return &val, nil
+func (s *TaskService) DeleteTask(id uuid.UUID)  error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	collection := s.Client.Database("task-management").Collection("tasks")
+    
+	filter := bson.D{{Key: "_id", Value: id}}
+  
+	// Delete the document that matches the filter
+	result, err := collection.DeleteOne(ctx, filter)
+	if err != nil {
+	  return err
+	}
+
+	if result.DeletedCount == 0 {
+		return errors.New("task not found")
+	}
+
+	return nil
+}
+
+func (s *TaskService) AddTask(task models.Task) (*models.Task, error) {
+	collection := s.Client.Database("task-management").Collection("tasks")
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// Recreate task until the ID conflict is resolved
+	for {
+		task.ID = uuid.New()
+  
+		_, err := collection.InsertOne(ctx, task)
+		if mongo.IsDuplicateKeyError(err) {
+			// If a duplicate key error occurs, generate a new ID and try again
+			continue
+		} else if err != nil {
+			return nil, err
 		}
+		return &task, nil
 	}
-	return nil, errors.New("task not found")
-}
-
-func (s *TaskService) AddTask(task models.Task) *models.Task {
-	newId := strconv.Itoa(len(tasks) + 1)
-	task.ID = newId
-	if task.Status == "" {
-		task.Status = "Pending"
-	}
-	tasks = append(tasks, task)
-	return &tasks[len(tasks)-1]
 }

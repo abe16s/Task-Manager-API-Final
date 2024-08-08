@@ -3,8 +3,7 @@ package main
 import (
     "fmt"
     "context"
-    // "log"
-
+    "log"
     "github.com/abe16s/Go-Backend-Learning-path/task_manager/router"
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
@@ -18,24 +17,19 @@ func main() {
 	client, err := mongo.Connect(context.Background(), clientOptions)
 
 	if err != nil {
-		// log.Fatal(err)
-        fmt.Errorf(err.Error())
+		log.Fatal(err)
+	} 
+	// Check the connection
+	err = client.Ping(context.Background(), nil)
+
+	if err != nil {
+		log.Fatal(err)
 	} else {
         fmt.Println("Connected to MongoDB!")
     }
 
-	// // Check the connection
-	// err = client.Ping(context.Background(), nil)
-
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-
     taskService := services.TaskService{Client: client}
     taskController := controllers.TaskController{Service: taskService}
-	// collection := client.Database("test").Collection("trainers")
-
     r := router.SetupRouter(&taskController)
     r.Run("localhost:8080")
 }
