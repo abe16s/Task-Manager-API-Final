@@ -13,17 +13,22 @@ import (
 )
 
 type TaskService struct {
-	Client *mongo.Client 
+	collection *mongo.Collection
+}
+
+// NewTaskService creates a new TaskService.
+func NewTaskService(client *mongo.Client, dbName, collectionName string) *TaskService {
+	collection := client.Database(dbName).Collection(collectionName)
+	return &TaskService{
+		collection: collection,
+	}
 }
 
 func (s *TaskService) GetTasks() ([]models.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
   
-	collection := s.Client.Database("task-management").Collection("tasks")
-
-  
-	cursor, err := collection.Find(ctx, bson.D{{}})
+	cursor, err := s.collection.Find(ctx, bson.D{{}})
 	if err != nil {
   
 	  return nil, err
@@ -54,12 +59,11 @@ func (s *TaskService) GetTaskById(id uuid.UUID) (*models.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
   
-	collection := s.Client.Database("task-management").Collection("tasks")
 	filter := bson.D{{Key: "_id", Value: id}}
   
 	// Find a single document that matches the filter
 	var task models.Task
-	err := collection.FindOne(ctx, filter).Decode(&task)
+	err := s.collection.FindOne(ctx, filter).Decode(&task)
 	if err != nil {
 	  if err == mongo.ErrNoDocuments {
 		return nil, errors.New("task Not Found")
@@ -73,7 +77,6 @@ func (s *TaskService) GetTaskById(id uuid.UUID) (*models.Task, error) {
 func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask models.Task) (*models.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	collection := s.Client.Database("task-management").Collection("tasks")
   
 	if strings.ToLower(updatedTask.Status) != "in progress" && strings.ToLower(updatedTask.Status) != "completed" && strings.ToLower(updatedTask.Status) != "pending" {
 	  return nil, errors.New("status error")
@@ -90,7 +93,7 @@ func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask models.Task) (*mo
 	}
 
 	// Update the document that matches the filter
-	result :=  collection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
+	result :=  s.collection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
 			return nil, errors.New("task not found")
@@ -108,12 +111,11 @@ func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask models.Task) (*mo
 func (s *TaskService) DeleteTask(id uuid.UUID)  error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	collection := s.Client.Database("task-management").Collection("tasks")
     
 	filter := bson.D{{Key: "_id", Value: id}}
   
 	// Delete the document that matches the filter
-	result, err := collection.DeleteOne(ctx, filter)
+	result, err := s.collection.DeleteOne(ctx, filter)
 	if err != nil {
 	  return err
 	}
@@ -126,7 +128,6 @@ func (s *TaskService) DeleteTask(id uuid.UUID)  error {
 }
 
 func (s *TaskService) AddTask(task models.Task) (*models.Task, error) {
-	collection := s.Client.Database("task-management").Collection("tasks")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -134,7 +135,7 @@ func (s *TaskService) AddTask(task models.Task) (*models.Task, error) {
 	for {
 		task.ID = uuid.New()
   
-		_, err := collection.InsertOne(ctx, task)
+		_, err := s.collection.InsertOne(ctx, task)
 		if mongo.IsDuplicateKeyError(err) {
 			// If a duplicate key error occurs, generate a new ID and try again
 			continue

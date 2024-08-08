@@ -6,7 +6,7 @@ import (
 )
 
 type Task struct {
-	ID          uuid.UUID   `bson:"_id" json:"_id"`
+	ID          uuid.UUID   `bson:"_id" json:"id"`
 	Title       string    	`bson:"title" json:"title" binding:"required"`
 	Description string    	`bson:"description" json:"description" binding:"required"`
 	DueDate     time.Time 	`bson:"due_date" json:"due_date" binding:"required"`

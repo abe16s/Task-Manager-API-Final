@@ -28,7 +28,9 @@ func main() {
         fmt.Println("Connected to MongoDB!")
     }
 
-    taskService := services.TaskService{Client: client}
+	dbName := "task-management"
+    taskService := services.NewTaskService(client, dbName, "tasks")
+	
     taskController := controllers.TaskController{Service: taskService}
     r := router.SetupRouter(&taskController)
     r.Run("localhost:8080")

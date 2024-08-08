@@ -11,7 +11,7 @@ import (
 )
 
 type TaskController struct {
-	Service services.TaskService
+	Service *services.TaskService
 }
 
 func (con *TaskController) GetTasks(c *gin.Context) {
