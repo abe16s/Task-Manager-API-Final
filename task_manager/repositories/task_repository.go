@@ -24,11 +24,11 @@ func NewTaskRepository(client *mongo.Client, dbName, collectionName string) *Tas
 	}
 }
 
-func (s *TaskRepository) GetTasks() ([]domain.Task, error) {
+func (tr *TaskRepository) GetTasks() ([]domain.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
   
-	cursor, err := s.collection.Find(ctx, bson.D{{}})
+	cursor, err := tr.collection.Find(ctx, bson.D{{}})
 	if err != nil {
   
 	  return nil, err
@@ -54,7 +54,7 @@ func (s *TaskRepository) GetTasks() ([]domain.Task, error) {
 	return tasks, nil
 }
 
-func (s *TaskRepository) GetTaskById(id uuid.UUID) (*domain.Task, error) {
+func (tr *TaskRepository) GetTaskById(id uuid.UUID) (*domain.Task, error) {
 	
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -63,7 +63,7 @@ func (s *TaskRepository) GetTaskById(id uuid.UUID) (*domain.Task, error) {
   
 	// Find a single document that matches the filter
 	var task domain.Task
-	err := s.collection.FindOne(ctx, filter).Decode(&task)
+	err := tr.collection.FindOne(ctx, filter).Decode(&task)
 	if err != nil {
 	  if err == mongo.ErrNoDocuments {
 		return nil, errors.New("task Not Found")
@@ -74,7 +74,7 @@ func (s *TaskRepository) GetTaskById(id uuid.UUID) (*domain.Task, error) {
 	return &task, nil
 }
 
-func (s *TaskRepository) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (*domain.Task, error) {
+func (tr *TaskRepository) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (*domain.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
   
@@ -93,7 +93,7 @@ func (s *TaskRepository) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (
 	}
 
 	// Update the document that matches the filter
-	result :=  s.collection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
+	result :=  tr.collection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
 			return nil, errors.New("task not found")
@@ -108,14 +108,14 @@ func (s *TaskRepository) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (
 	return &utask, nil
 }
 
-func (s *TaskRepository) DeleteTask(id uuid.UUID) error {
+func (tr *TaskRepository) DeleteTask(id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
     
 	filter := bson.D{{Key: "_id", Value: id}}
   
 	// Delete the document that matches the filter
-	result, err := s.collection.DeleteOne(ctx, filter)
+	result, err := tr.collection.DeleteOne(ctx, filter)
 	if err != nil {
 	  return err
 	}
@@ -127,7 +127,7 @@ func (s *TaskRepository) DeleteTask(id uuid.UUID) error {
 	return nil
 }
 
-func (s *TaskRepository) AddTask(task domain.Task) (*domain.Task, error) {
+func (tr *TaskRepository) AddTask(task domain.Task) (*domain.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -135,7 +135,7 @@ func (s *TaskRepository) AddTask(task domain.Task) (*domain.Task, error) {
 	for {
 		task.ID = uuid.New()
   
-		_, err := s.collection.InsertOne(ctx, task)
+		_, err := tr.collection.InsertOne(ctx, task)
 		if mongo.IsDuplicateKeyError(err) {
 			// If a duplicate key error occurs, generate a new ID and try again
 			continue

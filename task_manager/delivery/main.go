@@ -42,8 +42,9 @@ func main() {
 	taskService := usecases.TaskService{TaskRepo: TaskRepository}
 	taskController := controllers.TaskController{Service: &taskService}
 
-	userService := usecases.NewUserService(client, dbName, "users")
-	userController := controllers.UserController{Service: userService}
+	var UserRepository usecases.UserRepoInterface = repositories.NewUserRepository(client, dbName, "users")
+	userService := usecases.UserService{UserRepo: UserRepository}
+	userController := controllers.UserController{Service: &userService}
 	
 	r := router.SetupRouter(&taskController, &userController)
 	r.Run("localhost:" + os.Getenv("SERVER_PORT"))
