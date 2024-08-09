@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/delivery/controllers"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/delivery/router"
+	"github.com/abe16s/Go-Backend-Learning-path/task_manager/repositories"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/usecases"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -36,8 +38,9 @@ func main() {
 
 	dbName := "task-management"
 
-	taskService := usecases.NewTaskService(client, dbName, "tasks")
-	taskController := controllers.TaskController{Service: taskService}
+	var TaskRepository usecases.TaskRepoInterface = repositories.NewTaskRepository(client, dbName, "tasks")
+	taskService := usecases.TaskService{TaskRepo: TaskRepository}
+	taskController := controllers.TaskController{Service: &taskService}
 
 	userService := usecases.NewUserService(client, dbName, "users")
 	userController := controllers.UserController{Service: userService}

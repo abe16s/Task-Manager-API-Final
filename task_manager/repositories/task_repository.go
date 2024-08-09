@@ -1,4 +1,4 @@
-package usecases
+package repositories
 
 import (
 	"context"
@@ -12,19 +12,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type TaskService struct {
+type TaskRepository struct {
 	collection *mongo.Collection
 }
 
-// NewTaskService creates a new TaskService.
-func NewTaskService(client *mongo.Client, dbName, collectionName string) *TaskService {
+// NewTaskRepository creates a new TaskRepository.
+func NewTaskRepository(client *mongo.Client, dbName, collectionName string) *TaskRepository {
 	collection := client.Database(dbName).Collection(collectionName)
-	return &TaskService{
+	return &TaskRepository{
 		collection: collection,
 	}
 }
 
-func (s *TaskService) GetTasks() ([]domain.Task, error) {
+func (s *TaskRepository) GetTasks() ([]domain.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
   
@@ -54,7 +54,7 @@ func (s *TaskService) GetTasks() ([]domain.Task, error) {
 	return tasks, nil
 }
 
-func (s *TaskService) GetTaskById(id uuid.UUID) (*domain.Task, error) {
+func (s *TaskRepository) GetTaskById(id uuid.UUID) (*domain.Task, error) {
 	
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -74,7 +74,7 @@ func (s *TaskService) GetTaskById(id uuid.UUID) (*domain.Task, error) {
 	return &task, nil
 }
 
-func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (*domain.Task, error) {
+func (s *TaskRepository) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (*domain.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
   
@@ -108,7 +108,7 @@ func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (*do
 	return &utask, nil
 }
 
-func (s *TaskService) DeleteTask(id uuid.UUID)  error {
+func (s *TaskRepository) DeleteTask(id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
     
@@ -127,7 +127,7 @@ func (s *TaskService) DeleteTask(id uuid.UUID)  error {
 	return nil
 }
 
-func (s *TaskService) AddTask(task domain.Task) (*domain.Task, error) {
+func (s *TaskRepository) AddTask(task domain.Task) (*domain.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
