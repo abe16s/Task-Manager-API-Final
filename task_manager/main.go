@@ -4,16 +4,22 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/controllers"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/router"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/services"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/")
+	err := godotenv.Load()
+    if err != nil {
+        log.Fatalf("Error loading .env file")
+    }
 
+	clientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URI"))
 	client, err := mongo.Connect(context.Background(), clientOptions)
 
 	if err != nil {
@@ -37,5 +43,5 @@ func main() {
 	userController := controllers.UserController{Service: userService}
 	
 	r := router.SetupRouter(&taskController, &userController)
-	r.Run("localhost:8080")
+	r.Run("localhost:" + os.Getenv("SERVER_PORT"))
 }

@@ -4,10 +4,12 @@ A task management service built with Go and MongoDB, providing functionality for
 
 ## Configuration
 
-Before running the application, ensure you have a MongoDB instance running. Update the database connection string in main.go where it is set with 
+Before running the application, ensure you have a MongoDB instance running. Update the database connection string, also the server port number and jwt secret key in .env
 
-```go
-clientOptions := options.Client().ApplyURI("")
+```
+JWT_SECRET
+MONGODB_URI
+SERVER_PORT
 ```
 
 ## Authorization & Authentication

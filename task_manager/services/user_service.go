@@ -6,20 +6,21 @@ import (
 	"log"
 	"strings"
 	"time"
+	"os"
 
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-
-	// "go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/joho/godotenv"
 )
 
 
-var jwtSecret = []byte("qwertyuiopasdfghjklzxcvbnm")
+
+var jwtSecret []byte
 
 type UserService struct {
 	collection *mongo.Collection
@@ -68,6 +69,12 @@ func NewUserService(client *mongo.Client, dbName, collectionName string) *UserSe
 	} else {
 		log.Println("username index already exists")
 	}
+
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+	jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 	
 	return &UserService{
 		collection: collection,
