@@ -1,37 +1,41 @@
 package main
 
 import (
-    "fmt"
-    "context"
-    "log"
-    "github.com/abe16s/Go-Backend-Learning-path/task_manager/router"
-    "go.mongodb.org/mongo-driver/mongo"
-    "go.mongodb.org/mongo-driver/mongo/options"
-	"github.com/abe16s/Go-Backend-Learning-path/task_manager/services"
+	"context"
+	"fmt"
+	"log"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/controllers"
+	"github.com/abe16s/Go-Backend-Learning-path/task_manager/router"
+	"github.com/abe16s/Go-Backend-Learning-path/task_manager/services"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-	clientOptions := options.Client().ApplyURI("")
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/")
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 
 	if err != nil {
 		log.Fatal(err)
-	} 
+	}
 	// Check the connection
 	err = client.Ping(context.Background(), nil)
 
 	if err != nil {
 		log.Fatal(err)
 	} else {
-        fmt.Println("Connected to MongoDB!")
-    }
+		fmt.Println("Connected to MongoDB!")
+	}
 
 	dbName := "task-management"
-    taskService := services.NewTaskService(client, dbName, "tasks")
+
+	taskService := services.NewTaskService(client, dbName, "tasks")
+	taskController := controllers.TaskController{Service: taskService}
+
+	userService := services.NewUserService(client, dbName, "users")
+	userController := controllers.UserController{Service: userService}
 	
-    taskController := controllers.TaskController{Service: taskService}
-    r := router.SetupRouter(&taskController)
-    r.Run("localhost:8080")
+	r := router.SetupRouter(&taskController, &userController)
+	r.Run("localhost:8080")
 }

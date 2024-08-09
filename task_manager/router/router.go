@@ -1,18 +1,23 @@
 package router
 
 import (
-    "github.com/gin-gonic/gin"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/controllers"
+	"github.com/abe16s/Go-Backend-Learning-path/task_manager/middleware"
+	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(c *controllers.TaskController) *gin.Engine {
+func SetupRouter(taskController *controllers.TaskController, userController *controllers.UserController) *gin.Engine {
     router := gin.Default()
 
-    router.GET("/tasks", c.GetTasks)
-    router.GET("/tasks/:id", c.GetTaskById)
-    router.PUT("/tasks/:id", c.UpdateTaskByID)
-    router.DELETE("/tasks/:id", c.DeleteTask)
-    router.POST("/tasks", c.AddTask)
+    router.GET("/tasks", middleware.AuthMiddleware(false), taskController.GetTasks)
+    router.GET("/tasks/:id", middleware.AuthMiddleware(false), taskController.GetTaskById)
+    router.PUT("/tasks/:id", middleware.AuthMiddleware(true), taskController.UpdateTaskByID)
+    router.DELETE("/tasks/:id", middleware.AuthMiddleware(true), taskController.DeleteTask)
+    router.POST("/tasks", middleware.AuthMiddleware(true), taskController.AddTask)
+
+	router.POST("/register", userController.RegisterUser)
+	router.POST("/login", userController.Login)
+    router.PATCH("/promote", middleware.AuthMiddleware(true), userController.PromoteUser)
 
     return router
 }
