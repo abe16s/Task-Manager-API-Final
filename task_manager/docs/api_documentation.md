@@ -4,14 +4,137 @@ A task management service built with Go and MongoDB, providing functionality for
 
 ## Configuration
 
-Before running the application, ensure you have a MongoDB instance running. Update the database connection string in main.go where it is set with clientOptions := options.Client().ApplyURI("").
+Before running the application, ensure you have a MongoDB instance running. Update the database connection string in main.go where it is set with 
 
-## GET - GetAllTasks
+```go
+clientOptions := options.Client().ApplyURI("")
+```
 
-localhost:8080/tasks
+## Authorization & Authentication
 
-This endpoint makes an HTTP GET request to localhost:8080/tasks to retrieve a list of tasks. The request does not include a request body. The response will have a status code of 200 and a content type of application/json. The response body will be an array of task objects, each containing an id, title, description, due date, and status. Here's an example of the response body:
+Endpoints accessed by all registered users
 
+```
+GET localhost:8080/tasks
+GET localhost:8080/tasks/:id
+```
+
+Endpoints accessed by only registered admins
+
+```
+POST localhost:8080/tasks
+PUT localhost:8080/tasks/:id
+DELETE localhost:8080/tasks/:id
+PATCH localhost:8080/promote
+```
+
+## Register new user
+
+```
+POST localhost:8080/register
+```
+
+Registers a new user by accepting a JSON object containing the username and password.
+
+Request: 
+
+```json
+{
+  "username": "string",
+  "password": "string"
+}
+```
+
+Responses:
+
+* 201 Created:
+* Description: User registered successfully.
+
+Body:
+
+```json
+{
+  "_id": "9e484920-0871-49a3-9bcf-2b9a29e7ec09",
+  "username": "abe16s",
+  "password": "$2a$10$n3watE2dZ7WPz4oZA.3yIOXKPrBG5GUrOt8gg5WmpI3EpTg.NhLH.",
+  "is_admin": true
+}
+```
+* First registered user would be an admin by default
+
+## User Login
+
+```
+POST localhost:8080/login
+```
+
+Authenticates a user and returns a JWT token upon successful login.
+
+#### Request:
+
+```json
+{
+  "username": "string",
+  "password": "string"
+}
+```
+
+#### Responses:
+
+* 200 OK:
+* Description: User logged in successfully.
+
+Body:
+```json
+{
+  "message": "User logged in successfully",
+  "token": "jwt-token-here"
+}
+```
+
+## Promote user
+
+```
+PATCH localhost:8080/login
+```
+
+Promotes a user to admin status. Only accessible by users with an admin token.
+
+#### Request:
+  * Headers:
+      * Content-Type: application/json
+      * Authorization: Bearer <admin-token>
+  * Query Parameters:
+      * username: The username of the user to promote.
+
+Example Request:
+
+```bash
+PATCH /promote?username=johndoe
+Authorization: Bearer <admin-token>
+```
+
+#### Responses:
+
+* 200 OK:
+* Description: User promoted to admin successfully.
+
+Body:
+```json
+{
+  "message": "User promoted to admin successfully"
+}
+```
+
+## GetAllTasks
+
+```GET localhost:8080/tasks```
+
+This endpoint makes an HTTP GET request to localhost:8080/tasks to retrieve a list of tasks. The request does not include a request body. The response will have a status code of 200 and a content type of application/json. The response body will be an array of task objects, each containing an id, title, description, due date, and status. 
+
+* The header should include a proper authorization bearer token - only a registered user can get tasks
+
+Here's an example of the response body:
 
 ```json
 [
@@ -56,9 +179,11 @@ curl --location 'localhost:8080/tasks'
 
 ## GET - GetTaskByID
 
-localhost:8080/tasks/:id
+```localhost:8080/tasks/:id```
 
-This endpoint retrieves a specific task by its ID.
+This endpoint retrieves a specific task by its ID. The ID specified as a parameter
+
+* The header should include a proper authorization bearer token - only a registered user can get task
 
 #### Request
 * Method: GET
@@ -82,11 +207,13 @@ This endpoint retrieves a specific task by its ID.
 ```
 
 
-## PUT UpdateTaskByID
+## PUT - UpdateTaskByID
 
-localhost:8080/tasks/:id
+```localhost:8080/tasks/:id```
 
 This endpoint allows you to update a specific task identified by its ID. The request should be sent to localhost:8080/tasks/:id using the HTTP PUT method.
+
+* The header should include a proper authorization admin bearer token - only a registered admin can get update tasks
 
 #### Request Body
 The request body should be in raw format and include the following parameters:
@@ -114,11 +241,13 @@ Upon successful execution, the endpoint returns a status code of 201 and a JSON 
 }
 ```
 
-## DELETE DeleteTask
+## DELETE - DeleteTask
 
-localhost:8080/tasks/:id
+```localhost:8080/tasks/:id```
 
-This endpoint is used to delete a specific task identified by its ID.
+This endpoint is used to delete a specific task identified by its ID. 
+
+* The header should include a proper authorization admin bearer token - only a registered admin can get delete tasks
 
 #### Request
 
@@ -130,12 +259,13 @@ This endpoint is used to delete a specific task identified by its ID.
 * Status: 200
 
 
-## POST AddTask
+## POST - AddTask
 
-localhost:8080/tasks
-
+```localhost:8080/tasks```
 
 This endpoint is used to create a new task.
+
+* The header should include a proper authorization admin bearer token - only a registered admin can get add tasks
 
 #### Request Body
 
@@ -169,3 +299,7 @@ The response is in JSON format with the following schema:
   }
 }
 ```
+
+
+### Error Handling:
+Each endpoint returns error messages in a standardized format, with appropriate HTTP status codes depending on the error encountered. It's important to handle these errors gracefully on the client side.
