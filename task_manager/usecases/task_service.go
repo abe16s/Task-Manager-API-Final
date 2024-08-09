@@ -1,11 +1,11 @@
-package services
+package usecases
 
 import (
 	"context"
 	"errors"
 	"strings"
 	"time"
-	"github.com/abe16s/Go-Backend-Learning-path/task_manager/models"
+	"github.com/abe16s/Go-Backend-Learning-path/task_manager/domain"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,7 +24,7 @@ func NewTaskService(client *mongo.Client, dbName, collectionName string) *TaskSe
 	}
 }
 
-func (s *TaskService) GetTasks() ([]models.Task, error) {
+func (s *TaskService) GetTasks() ([]domain.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
   
@@ -36,9 +36,9 @@ func (s *TaskService) GetTasks() ([]models.Task, error) {
   
 	defer cursor.Close(ctx)
   
-	tasks := make([]models.Task,0)
+	tasks := make([]domain.Task,0)
 	for cursor.Next(ctx) {
-	  var task models.Task
+	  var task domain.Task
 	  if err := cursor.Decode(&task); err != nil {
   
 		return nil, err
@@ -54,7 +54,7 @@ func (s *TaskService) GetTasks() ([]models.Task, error) {
 	return tasks, nil
 }
 
-func (s *TaskService) GetTaskById(id uuid.UUID) (*models.Task, error) {
+func (s *TaskService) GetTaskById(id uuid.UUID) (*domain.Task, error) {
 	
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -62,7 +62,7 @@ func (s *TaskService) GetTaskById(id uuid.UUID) (*models.Task, error) {
 	filter := bson.D{{Key: "_id", Value: id}}
   
 	// Find a single document that matches the filter
-	var task models.Task
+	var task domain.Task
 	err := s.collection.FindOne(ctx, filter).Decode(&task)
 	if err != nil {
 	  if err == mongo.ErrNoDocuments {
@@ -74,7 +74,7 @@ func (s *TaskService) GetTaskById(id uuid.UUID) (*models.Task, error) {
 	return &task, nil
 }
 
-func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask models.Task) (*models.Task, error) {
+func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (*domain.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
   
@@ -101,7 +101,7 @@ func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask models.Task) (*mo
 		return nil, result.Err()
 	}
   
-	var utask models.Task
+	var utask domain.Task
 	if err := result.Decode(&utask); err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (s *TaskService) DeleteTask(id uuid.UUID)  error {
 	return nil
 }
 
-func (s *TaskService) AddTask(task models.Task) (*models.Task, error) {
+func (s *TaskService) AddTask(task domain.Task) (*domain.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 

@@ -1,4 +1,4 @@
-package services
+package usecases
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"time"
 	"os"
 
-	"github.com/abe16s/Go-Backend-Learning-path/task_manager/models"
+	"github.com/abe16s/Go-Backend-Learning-path/task_manager/domain"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -70,7 +70,7 @@ func NewUserService(client *mongo.Client, dbName, collectionName string) *UserSe
 		log.Println("username index already exists")
 	}
 
-	err = godotenv.Load()
+	err = godotenv.Load("../.env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
@@ -83,7 +83,7 @@ func NewUserService(client *mongo.Client, dbName, collectionName string) *UserSe
 
 
 // register new user with unique username and password
-func (s *UserService) RegisterUser(user models.User) (*models.User, error) {
+func (s *UserService) RegisterUser(user domain.User) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -129,11 +129,11 @@ func (s *UserService) RegisterUser(user models.User) (*models.User, error) {
 
 
 // login user 
-func (s *UserService) LoginUser(user models.User) (string, error) {
+func (s *UserService) LoginUser(user domain.User) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	var existingUser models.User
+	var existingUser domain.User
 	err := s.collection.FindOne(ctx, bson.M{"username": user.Username}).Decode(&existingUser)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
