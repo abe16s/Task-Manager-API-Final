@@ -12,6 +12,8 @@ MONGODB_URI
 SERVER_PORT
 ```
 
+[Postman documetation](https://documenter.getpostman.com/view/32032637/2sA3s3GAhh)
+
 ## Authorization & Authentication
 
 Endpoints accessed by all registered users
