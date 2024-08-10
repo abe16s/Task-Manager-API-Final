@@ -80,5 +80,5 @@ func (con *UserController) PromoteUser(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "User promoted to admin successfully"})
+	c.Status(http.StatusOK)
 }

@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"errors"
-	"strings"
 	"time"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/domain"
 	"github.com/google/uuid"
@@ -74,13 +73,10 @@ func (tr *TaskRepository) GetTaskById(id uuid.UUID) (*domain.Task, error) {
 	return &task, nil
 }
 
-func (tr *TaskRepository) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (*domain.Task, error) {
+func (tr *TaskRepository) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
   
-	if strings.ToLower(updatedTask.Status) != "in progress" && strings.ToLower(updatedTask.Status) != "completed" && strings.ToLower(updatedTask.Status) != "pending" {
-	  return nil, errors.New("status error")
-	}
 	filter := bson.D{{Key: "_id", Value: id}}
   
 	update := bson.D{
@@ -96,16 +92,12 @@ func (tr *TaskRepository) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) 
 	result :=  tr.collection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
-			return nil, errors.New("task not found")
+			return errors.New("task not found")
 		}
-		return nil, result.Err()
+		return result.Err()
 	}
   
-	var utask domain.Task
-	if err := result.Decode(&utask); err != nil {
-		return nil, err
-	}
-	return &utask, nil
+	return nil
 }
 
 func (tr *TaskRepository) DeleteTask(id uuid.UUID) error {

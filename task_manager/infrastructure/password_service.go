@@ -13,11 +13,6 @@ func HashPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-
 func ComparePassword(existingPassword string, userPassword string) bool {
-	if bcrypt.CompareHashAndPassword([]byte(existingPassword), []byte(userPassword)) != nil {
-		return false
-	}
-
-	return true
+	return bcrypt.CompareHashAndPassword([]byte(existingPassword), []byte(userPassword)) == nil
 }

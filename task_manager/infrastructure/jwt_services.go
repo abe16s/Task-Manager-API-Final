@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/joho/godotenv"
 )
@@ -28,10 +26,10 @@ func GenerateToken(username string, isAdmin bool) (string, error) {
 	expirationTime := time.Now().Add(20 * time.Minute).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
-		"isAdmin":  isAdmin,
+		"is_admin":  isAdmin,
 		"exp":      expirationTime,
 	})
-	jwtToken, e := token.SignedString([]byte("JwtSecret"))
+	jwtToken, e := token.SignedString(jwtSecret)
 
 	if e != nil {
 		return "", errors.New("can't sign token")
@@ -40,18 +38,9 @@ func GenerateToken(username string, isAdmin bool) (string, error) {
 	return jwtToken, nil
 }
 
-// validate authHeader
-func ValidateAuthHeader(authHeader string) (*jwt.Token, error) {
-	if authHeader == "" {
-		return nil, errors.New("authorization header is required")
-	}
-
-	authParts := strings.Split(authHeader, " ")
-	if len(authParts) != 2 || strings.ToLower(authParts[0]) != "bearer" {
-		return nil, errors.New("invalid authorization header")
-	}
-
-	token, err := jwt.Parse(authParts[1], func(token *jwt.Token) (interface{}, error) {
+// validate token
+func ValidateToken(token string) (*jwt.Token, error) {
+	jwtoken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -59,11 +48,11 @@ func ValidateAuthHeader(authHeader string) (*jwt.Token, error) {
 		return jwtSecret, nil
 	})	
 
-	if err != nil || !token.Valid {
+	if err != nil || !jwtoken.Valid {
 		return nil, errors.New("invalid JWT")
 	}
 	
-	return token, err
+	return jwtoken, err
 }
 
 

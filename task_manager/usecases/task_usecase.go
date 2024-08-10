@@ -28,12 +28,16 @@ func (s *TaskService) GetTaskById(id uuid.UUID) (*domain.Task, error) {
 	return task, nil
 }
 
-func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) (*domain.Task, error) {
-	task, err := s.TaskRepo.UpdateTaskByID(id, updatedTask)
-	if err != nil {
-		return nil, err
+func (s *TaskService) UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) error {
+	if strings.ToLower(updatedTask.Status) != "in progress" && strings.ToLower(updatedTask.Status) != "completed" && strings.ToLower(updatedTask.Status) != "pending" {
+		return errors.New("status error")
 	}
-	return task, nil
+	
+	err := s.TaskRepo.UpdateTaskByID(id, updatedTask)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *TaskService) DeleteTask(id uuid.UUID) error {

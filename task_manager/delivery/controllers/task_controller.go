@@ -79,7 +79,7 @@ func (con *TaskController) UpdateTaskByID(c *gin.Context) {
 	  }
 	
 
-	task, err := con.Service.UpdateTaskByID(id, updatedTask)
+	err = con.Service.UpdateTaskByID(id, updatedTask)
 
 	if err != nil && err.Error() == "task not found" {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Task Not Found"})
@@ -89,7 +89,7 @@ func (con *TaskController) UpdateTaskByID(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, task)
+	c.Status(http.StatusCreated)
 }
 
 func (con *TaskController) DeleteTask(c *gin.Context) {
