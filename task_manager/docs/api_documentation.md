@@ -120,8 +120,7 @@ Authorization: Bearer <admin-token>
 
 #### Responses:
 
-* 200 OK:
-* Description: User promoted to admin successfully.
+* 204 No Content:
 
 Body:
 ```json
@@ -227,23 +226,7 @@ The request body should be in raw format and include the following parameters:
 * due_date (string (ISO 8601 format)): The updated due date of the task.
 
 #### Response
-Upon successful execution, the endpoint returns a status code of 201 and a JSON object with the updated details of the task, including the following properties:
-* id (string): The ID of the task.
-* title (string): The title of the task.
-* description (string): The description of the task.
-* due_date (string): The due date of the task.
-* status (string (ISO 8601 format)): The status of the task.
-
-#### Example Response
-```JSON
-{
-    "id":"uuid",
-    "title":"string",
-    "description":"string",
-    "due_date":"string (ISO 8601 format)",
-    "status":"string"
-}
-```
+* 204 No Content
 
 ## DELETE - DeleteTask
 
@@ -260,7 +243,7 @@ This endpoint is used to delete a specific task identified by its ID.
 
 #### Response
 
-* Status: 200
+* Status: 204
 
 
 ## POST - AddTask

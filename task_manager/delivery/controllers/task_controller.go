@@ -89,7 +89,7 @@ func (con *TaskController) UpdateTaskByID(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	c.Status(http.StatusNoContent)
 }
 
 func (con *TaskController) DeleteTask(c *gin.Context) {
@@ -101,7 +101,7 @@ func (con *TaskController) DeleteTask(c *gin.Context) {
 
 	err = con.Service.DeleteTask(id)
 	if err == nil {
-		c.Status(http.StatusOK)
+		c.Status(http.StatusNoContent)
 		return
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Task Not Found"})

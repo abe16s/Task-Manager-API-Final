@@ -80,5 +80,5 @@ func (con *UserController) PromoteUser(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.Status(http.StatusNoContent)
 }
