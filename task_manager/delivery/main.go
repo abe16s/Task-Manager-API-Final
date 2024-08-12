@@ -10,6 +10,7 @@ import (
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/delivery/router"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/repositories"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/usecases"
+	"github.com/abe16s/Go-Backend-Learning-path/task_manager/infrastructure"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -37,13 +38,17 @@ func main() {
 	}
 
 	dbName := "task-management"
+	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+
+	var PasswordService infrastructure.PasswordServiceInterface = &infrastructure.PasswordService{}
+	var JwtService infrastructure.JwtServiceInterface = &infrastructure.JwtService{JwtSecret: jwtSecret}
 
 	var TaskRepository usecases.TaskRepoInterface = repositories.NewTaskRepository(client, dbName, "tasks")
 	taskService := usecases.TaskService{TaskRepo: TaskRepository}
 	taskController := controllers.TaskController{Service: &taskService}
 
 	var UserRepository usecases.UserRepoInterface = repositories.NewUserRepository(client, dbName, "users")
-	userService := usecases.UserService{UserRepo: UserRepository}
+	userService := usecases.UserService{UserRepo: UserRepository, PasswordService: PasswordService, JwtService: JwtService}
 	userController := controllers.UserController{Service: &userService}
 	
 	r := router.SetupRouter(&taskController, &userController)

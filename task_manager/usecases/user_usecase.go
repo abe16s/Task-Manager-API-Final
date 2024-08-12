@@ -1,11 +1,17 @@
 package usecases
 
 import (
+	"errors"
+
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/domain"
+	"github.com/abe16s/Go-Backend-Learning-path/task_manager/infrastructure"
+	"github.com/google/uuid"
 )
 
 type UserService struct {
 	UserRepo UserRepoInterface
+	PasswordService infrastructure.PasswordServiceInterface
+	JwtService infrastructure.JwtServiceInterface
 }
 
 // register new user with unique username and password
@@ -15,9 +21,19 @@ func (s *UserService) RegisterUser(user domain.User) (*domain.User, error) {
 		return nil, err
 	}
 
+	user.ID = uuid.New()
+
 	if count == 0 {
 		user.IsAdmin = true
 	}
+
+	hashedPassword, err := s.PasswordService.HashPassword(user.Password)
+    if err != nil {
+		return nil, err
+    }
+
+    user.Password = hashedPassword
+
 	u, err := s.UserRepo.RegisterUser(user)
 
 	if err != nil {
@@ -30,12 +46,23 @@ func (s *UserService) RegisterUser(user domain.User) (*domain.User, error) {
 
 // login user 
 func (s *UserService) LoginUser(user domain.User) (string, error) {
-	token, err := s.UserRepo.LoginUser(user)
+	existingUser, err := s.UserRepo.GetUser(user.Username)
 	if err != nil {
 		return "", err
 	}
 
-	return token, nil
+	match := s.PasswordService.ComparePassword(existingUser.Password, user.Password)
+	if !match {
+		return "", errors.New("invalid credentials")
+	}
+
+	// generate token
+	jwtToken, err := s.JwtService.GenerateToken(existingUser.Username, existingUser.IsAdmin)
+	if err != nil {
+		return "", errors.New("internal server error")
+	}
+
+	return jwtToken, nil
 }
 
 

@@ -9,8 +9,6 @@ import (
 	"time"
 
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/domain"
-	"github.com/abe16s/Go-Backend-Learning-path/task_manager/infrastructure"
-	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -96,16 +94,8 @@ func (ur *UserRepository) RegisterUser(user domain.User) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	hashedPassword, err := infrastructure.HashPassword(user.Password)
-    if err != nil {
-		return nil, err
-    }
-
-    user.Password = hashedPassword
-
 	// Check if user already exists
 	for {
-		user.ID = uuid.New()
 		_, err := ur.collection.InsertOne(ctx, user)
 		
 		// if user exists return error
@@ -129,31 +119,19 @@ func (ur *UserRepository) RegisterUser(user domain.User) (*domain.User, error) {
 
 
 // login user 
-func (ur *UserRepository) LoginUser(user domain.User) (string, error) {
+func (ur *UserRepository) GetUser(username string) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	var existingUser domain.User
-	err := ur.collection.FindOne(ctx, bson.M{"username": user.Username}).Decode(&existingUser)
+	err := ur.collection.FindOne(ctx, bson.M{"username": username}).Decode(&existingUser)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return "", errors.New("user not found")
+			return nil, errors.New("user not found")
 		}
-		return "", err
+		return nil, err
 	}
-
-	match := infrastructure.ComparePassword(existingUser.Password, user.Password)
-	if !match {
-		return "", errors.New("invalid credentials")
-	}
-
-	// generate token
-	jwtToken, err := infrastructure.GenerateToken(existingUser.Username, existingUser.IsAdmin)
-	if err != nil {
-		return "", errors.New("internal server error")
-	}
-
-	return jwtToken, nil
+	return &existingUser, nil
 }
 
 
