@@ -15,7 +15,7 @@ type UserService struct {
 }
 
 // register new user with unique username and password
-func (s *UserService) RegisterUser(user domain.User) (*domain.User, error) {
+func (s *UserService) RegisterUser(user *domain.User) (*domain.User, error) {
 	count, err := s.UserRepo.Count()
 	if err != nil {
 		return nil, err

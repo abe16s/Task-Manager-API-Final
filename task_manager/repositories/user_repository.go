@@ -81,7 +81,7 @@ func (ur *UserRepository) Count() (int64, error) {
 }
 
 // register new user with unique username and password
-func (ur *UserRepository) RegisterUser(user domain.User) (*domain.User, error) {
+func (ur *UserRepository) RegisterUser(user *domain.User) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -104,7 +104,7 @@ func (ur *UserRepository) RegisterUser(user domain.User) (*domain.User, error) {
 		}
 
 		// else create new user
-		return &user, nil
+		return user, nil
 	}
 }
 

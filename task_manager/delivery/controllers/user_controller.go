@@ -36,7 +36,7 @@ func (con *UserController) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	newUser, err := con.Service.RegisterUser(user)
+	newUser, err := con.Service.RegisterUser(&user)
 	if err != nil && err.Error() == "username already exists" {
 		c.IndentedJSON(http.StatusConflict, gin.H{"error": "username already exists"})
 		return
