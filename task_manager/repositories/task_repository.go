@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"time"
+
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/domain"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -125,7 +126,6 @@ func (tr *TaskRepository) AddTask(task domain.Task) (*domain.Task, error) {
 
 	// Recreate task until the ID conflict is resolved
 	for {
-		task.ID = uuid.New()
   
 		_, err := tr.collection.InsertOne(ctx, task)
 		if mongo.IsDuplicateKeyError(err) {

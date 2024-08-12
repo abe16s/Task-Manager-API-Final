@@ -4,18 +4,15 @@ import (
 	"context"
 	"errors"
 	"log"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/domain"
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var jwtSecret []byte
 
 type UserRepository struct {
 	collection *mongo.Collection
@@ -64,12 +61,6 @@ func NewUserRepository(client *mongo.Client, dbName, collectionName string) *Use
 	} else {
 		log.Println("username index already exists")
 	}
-
-	err = godotenv.Load("../.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 	
 	return &UserRepository{
 		collection: collection,

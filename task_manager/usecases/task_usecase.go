@@ -52,6 +52,7 @@ func (s *TaskService) AddTask(task domain.Task) (*domain.Task, error) {
 	if strings.ToLower(task.Status) != "in progress" && strings.ToLower(task.Status) != "completed" && strings.ToLower(task.Status) != "pending" {
 		return nil, errors.New("status error")
 	}
+	task.ID = uuid.New()
 	newTask, err := s.TaskRepo.AddTask(task)
 	if err != nil {
 		return nil, err
