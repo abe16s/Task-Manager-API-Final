@@ -1,24 +1,14 @@
 package infrastructure
 
 import (
-	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/usecases"
 )
 
-func AuthMiddleware(adminCheck bool) gin.HandlerFunc {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	// get jwt secret from env
-	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
-	var jwtservice usecases.JwtServiceInterface = &JwtService{JwtSecret: jwtSecret}
+func AuthMiddleware(jwtservice usecases.JwtServiceInterface,adminCheck bool) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
