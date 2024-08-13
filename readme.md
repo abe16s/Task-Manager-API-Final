@@ -8,6 +8,7 @@ This project is a backend and API service for a task management application, bui
 - **Task Management**: Create, update, delete, and retrieve tasks.
 - **Role-Based Access Control**: Restrict access to certain actions based on user roles.
 - **RESTful API**: Provides a RESTful API for interacting with the task management system.
+- **Continuous Integration**: Automated testing and build process via GitHub Actions.
 
 ## Folder Structure
 
@@ -18,10 +19,15 @@ task_manager
 │   .env
 │   go.mod
 │   go.sum
-│   
+│   readme.md
+│
+├───.github
+│   └───workflows
+│           go.yml
+│
 ├───delivery
 │   │   main.go
-│   │   
+│   │
 │   ├───controllers
 │   │       task_controller.go
 │   │       user_controller.go
@@ -44,7 +50,30 @@ task_manager
 │       task_repository.go
 │       user_repository.go
 │
+├───tests
+│   │   auth_middleware_test.go
+│   │   jwt_services_test.go
+│   │   password_service_test.go
+│   │   task_controller_test.go
+│   │   task_usecase_test.go
+│   │   user_controller_test.go
+│   │   user_usecase_test.go
+│   │
+│   ├───mocks
+│   │       JwtServiceInterface.go
+│   │       PasswordServiceInterface.go
+│   │       TaskRepoInterface.go
+│   │       TaskServiceInterface.go
+│   │       UserRepoInterface.go
+│   │       UserServiceInterface.go
+│   │
+│   └───repository_tests
+│           task_repository_test.go
+│           user_repository_test.go
+│
 └───usecases
+        jwt_service_interface.go
+        password_service_interface.go
         task_repository_interface.go
         task_usecase.go
         user_repository_interface.go
@@ -58,6 +87,11 @@ task_manager
 - **go.mod**: Go module file that defines the module’s path and its dependencies.
 
 - **go.sum**: File that contains the expected cryptographic checksums of the dependencies listed in `go.mod`.
+
+- **readme.md**: The project’s README file containing details about the application, its setup, and usage.
+
+- ### `.github/`
+  - **workflows/go.yml**: GitHub Actions workflow file that defines the CI/CD pipeline for automated testing and builds.
 
 - ### `delivery/`
   - **main.go**: The entry point of the application, responsible for initializing the server and setting up routes.
@@ -84,8 +118,31 @@ task_manager
   - **task_repository.go**: Responsible for interacting with the database to perform CRUD operations on tasks.
   - **user_repository.go**: Handles database interactions related to users, such as retrieving user information and storing new users.
 
+- ### `tests/`
+  - **auth_middleware_test.go**: Tests for the authentication middleware.
+  - **jwt_services_test.go**: Tests for JWT services.
+  - **password_service_test.go**: Tests for the password hashing and verification service.
+  - **task_controller_test.go**: Tests for the task controller.
+  - **task_usecase_test.go**: Tests for task use cases.
+  - **user_controller_test.go**: Tests for the user controller.
+  - **user_usecase_test.go**: Tests for user use cases.
+  
+  - #### `tests/mocks/`
+    - **JwtServiceInterface.go**: Mock implementation for JWT service interface.
+    - **PasswordServiceInterface.go**: Mock implementation for password service interface.
+    - **TaskRepoInterface.go**: Mock implementation for task repository interface.
+    - **TaskServiceInterface.go**: Mock implementation for task service interface.
+    - **UserRepoInterface.go**: Mock implementation for user repository interface.
+    - **UserServiceInterface.go**: Mock implementation for user service interface.
+
+  - #### `tests/repository_tests/`
+    - **task_repository_test.go**: Unit tests for the task repository.
+    - **user_repository_test.go**: Unit tests for the user repository.
+
 - ### `usecases/`
-  - **task_repository_interface.go**: Defines the interface for the task repository, promoting a decoupled architecture.
+  - **jwt_service_interface.go**: Defines the interface for the JWT service.
+  - **password_service_interface.go**: Defines the interface for the password service.
+  - **task_repository_interface.go**: Defines the interface for the task repository.
   - **task_usecase.go**: Contains the business logic for tasks, coordinating between the repository and controllers.
   - **user_repository_interface.go**: Defines the interface for the user repository.
   - **user_usecase.go**: Encapsulates the business logic related to user actions, such as registration and authentication.
@@ -158,4 +215,4 @@ The project follows the principles of **Clean Architecture** to ensure a robust,
 
 ## API Documentation
 
-For detailed information on the available API endpoints, refer to the [API Documentation](task_manager/docs/api_documentation.md).
+For detailed information on the available API endpoints, refer to the [API Documentation](docs/api_documentation.md).
