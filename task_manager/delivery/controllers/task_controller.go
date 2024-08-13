@@ -11,7 +11,7 @@ import (
 )
 
 type TaskController struct {
-	Service *usecases.TaskService
+	Service usecases.TaskServiceInterface
 }
 
 func (con *TaskController) GetTasks(c *gin.Context) {

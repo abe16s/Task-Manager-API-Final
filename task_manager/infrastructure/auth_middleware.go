@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/abe16s/Go-Backend-Learning-path/task_manager/usecases"
 )
 
 func AuthMiddleware(adminCheck bool) gin.HandlerFunc {
@@ -17,7 +18,7 @@ func AuthMiddleware(adminCheck bool) gin.HandlerFunc {
 	}
 	// get jwt secret from env
 	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
-	var jwtservice JwtServiceInterface = &JwtService{JwtSecret: jwtSecret}
+	var jwtservice usecases.JwtServiceInterface = &JwtService{JwtSecret: jwtSecret}
 
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")

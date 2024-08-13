@@ -4,11 +4,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type PasswordServiceInterface interface {
-	HashPassword(password string) (string, error)
-	ComparePassword(existingPassword string, userPassword string) bool
-}
-
 type PasswordService struct {
 }
 

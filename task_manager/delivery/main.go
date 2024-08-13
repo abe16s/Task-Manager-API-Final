@@ -40,8 +40,8 @@ func main() {
 	dbName := "task-management"
 	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 
-	var PasswordService infrastructure.PasswordServiceInterface = &infrastructure.PasswordService{}
-	var JwtService infrastructure.JwtServiceInterface = &infrastructure.JwtService{JwtSecret: jwtSecret}
+	var PasswordService usecases.PasswordServiceInterface = &infrastructure.PasswordService{}
+	var JwtService usecases.JwtServiceInterface = &infrastructure.JwtService{JwtSecret: jwtSecret}
 
 	var TaskRepository usecases.TaskRepoInterface = repositories.NewTaskRepository(client, dbName, "tasks")
 	taskService := usecases.TaskService{TaskRepo: TaskRepository}
