@@ -9,7 +9,7 @@ import (
 )
 
 type UserController struct {
-	Service *usecases.UserService
+	Service usecases.UserServiceInterface
 }
 
 func (con *UserController) RegisterUser(c *gin.Context) {
@@ -25,13 +25,17 @@ func (con *UserController) RegisterUser(c *gin.Context) {
 	
 		  field := e.Field()
 		  switch field {
-			case "username":
+			case "Username":
 				errorMessages["username"] = "username is required."
-			case "password":
+			case "Password":
 				errorMessages["password"] = "password is required."
 		  }
 		}
 	
+		if len(errorMessages) == 0 {
+			errorMessages["json"] = "Invalid JSON"
+		}
+		
 		c.JSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
 		return
 	}

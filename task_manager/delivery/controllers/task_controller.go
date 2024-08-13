@@ -73,6 +73,10 @@ func (con *TaskController) UpdateTaskByID(c *gin.Context) {
 			errorMessages["due_date"] = "DueDate is required."
 		  }
 		}
+
+		if len(errorMessages) == 0 {
+			errorMessages["error"] = "Invalid JSON"
+		}
 	
 		c.JSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
 		return
@@ -133,6 +137,10 @@ func (con *TaskController) AddTask(c *gin.Context) {
 		  case "DueDate":
 			errorMessages["due_date"] = "DueDate is required."
 		  }
+		}
+
+		if len(errorMessages) == 0 {
+			errorMessages["json"] = "Invalid JSON"
 		}
 	
 		c.JSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
