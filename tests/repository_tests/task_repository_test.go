@@ -63,7 +63,7 @@ func (suite *TaskRepositorySuite) TestAddTask() {
 		Title:       "Test Task",
 		Description: "Test Description",
 		Status:      "pending",
-		DueDate:     time.Now(),
+		DueDate:     time.Now().UTC(),
 	}
 
 	addedTask, err := suite.repo.AddTask(task)
@@ -77,14 +77,14 @@ func (suite *TaskRepositorySuite) TestGetTasks() {
 		Title:       "Test Task 1",
 		Description: "Test Description 1",
 		Status:      "pending",
-		DueDate:     time.Now(),
+		DueDate:     time.Now().UTC(),
 	}
 	task2 := domain.Task{
 		ID:          uuid.New(),
 		Title:       "Test Task 2",
 		Description: "Test Description 2",
 		Status:      "completed",
-		DueDate:     time.Now(),
+		DueDate:     time.Now().UTC(),
 	}
 
 	_, err := suite.repo.AddTask(task1)
@@ -104,7 +104,7 @@ func (suite *TaskRepositorySuite) TestGetTaskById() {
 		Title:       "Test Task",
 		Description: "Test Description",
 		Status:      "pending",
-		DueDate:     time.Now(),
+		DueDate:     time.Now().UTC(),
 	}
 
 	_, err := suite.repo.AddTask(task)
@@ -121,7 +121,7 @@ func (suite *TaskRepositorySuite) TestUpdateTaskByID() {
 		Title:       "Test Task",
 		Description: "Test Description",
 		Status:      "pending",
-		DueDate:     time.Now(),
+		DueDate:     time.Now().UTC(),
 	}
 
 	_, err := suite.repo.AddTask(task)
@@ -131,7 +131,7 @@ func (suite *TaskRepositorySuite) TestUpdateTaskByID() {
 		Title:       "Updated Task",
 		Description: "Updated Description",
 		Status:      "completed",
-		DueDate:     time.Now(),
+		DueDate:     time.Now().UTC(),
 	}
 
 	err = suite.repo.UpdateTaskByID(task.ID, updatedTask)
@@ -150,7 +150,7 @@ func (suite *TaskRepositorySuite) TestDeleteTask() {
 		Title:       "Test Task",
 		Description: "Test Description",
 		Status:      "pending",
-		DueDate:     time.Now(),
+		DueDate:     time.Now().UTC(),
 	}
 
 	_, err := suite.repo.AddTask(task)

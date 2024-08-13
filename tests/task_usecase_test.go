@@ -29,8 +29,8 @@ func (suite *TaskServiceTestSuite) SetupTest() {
 // TestGetTasks tests the GetTasks method
 func (suite *TaskServiceTestSuite) TestGetTasks() {
 	mockTasks := []domain.Task{
-		{ID: uuid.New(), Title: "Test Task 1", Status: "pending", Description: "Test Description 1", DueDate: time.Now()},
-		{ID: uuid.New(), Title: "Test Task 2", Status: "completed",  Description: "Test Description 2", DueDate: time.Now().Add(24 * time.Hour)},
+		{ID: uuid.New(), Title: "Test Task 1", Status: "pending", Description: "Test Description 1", DueDate: time.Now().UTC()},
+		{ID: uuid.New(), Title: "Test Task 2", Status: "completed",  Description: "Test Description 2", DueDate: time.Now().UTC().Add(24 * time.Hour)},
 	}
 
 	suite.mockRepo.On("GetTasks").Return(mockTasks, nil)
@@ -45,7 +45,7 @@ func (suite *TaskServiceTestSuite) TestGetTasks() {
 // TestGetTaskById tests the GetTaskById method
 func (suite *TaskServiceTestSuite) TestGetTaskById() {
 	taskID := uuid.New()
-	mockTask := &domain.Task{ID: taskID, Title: "Test Task", Status: "pending", Description: "Test Description", DueDate: time.Now()}
+	mockTask := &domain.Task{ID: taskID, Title: "Test Task", Status: "pending", Description: "Test Description", DueDate: time.Now().UTC()}
 
 	suite.mockRepo.On("GetTaskById", taskID).Return(mockTask, nil)
 
@@ -72,7 +72,7 @@ func (suite *TaskServiceTestSuite) TestGetTaskById_InvalidID() {
 // TestUpdateTaskByID_ValidStatus tests the UpdateTaskByID method with a valid status
 func (suite *TaskServiceTestSuite) TestUpdateTaskByID_ValidStatus() {
 	taskID := uuid.New()
-	updatedTask := domain.Task{ID: taskID, Title: "Updated Task", Status: "in progress", Description: "Updated Description", DueDate: time.Now()}
+	updatedTask := domain.Task{ID: taskID, Title: "Updated Task", Status: "in progress", Description: "Updated Description", DueDate: time.Now().UTC()}
 
 	suite.mockRepo.On("UpdateTaskByID", taskID, updatedTask).Return(nil)
 
@@ -85,7 +85,7 @@ func (suite *TaskServiceTestSuite) TestUpdateTaskByID_ValidStatus() {
 // TestUpdateTaskByID_InvalidStatus tests the UpdateTaskByID method with an invalid status
 func (suite *TaskServiceTestSuite) TestUpdateTaskByID_InvalidStatus() {
 	taskID := uuid.New()
-	updatedTask := domain.Task{ID: taskID, Title: "Updated Task", Status: "unknown",  Description: "Updated Description", DueDate: time.Now()}
+	updatedTask := domain.Task{ID: taskID, Title: "Updated Task", Status: "unknown",  Description: "Updated Description", DueDate: time.Now().UTC()}
 
 	err := suite.service.UpdateTaskByID(taskID, updatedTask)
 
@@ -96,7 +96,7 @@ func (suite *TaskServiceTestSuite) TestUpdateTaskByID_InvalidStatus() {
 // TestUpdateTaskByID_InvalidID tests the UpdateTaskByID method with an invalid ID
 func (suite *TaskServiceTestSuite) TestUpdateTaskByID_InvalidID() {
 	invalidID := uuid.New()
-	updatedTask := domain.Task{ID: invalidID, Title: "Updated Task", Status: "in progress", Description: "Updated Description", DueDate: time.Now()}
+	updatedTask := domain.Task{ID: invalidID, Title: "Updated Task", Status: "in progress", Description: "Updated Description", DueDate: time.Now().UTC()}
 
 	suite.mockRepo.On("UpdateTaskByID", invalidID, updatedTask).Return(errors.New("task not found"))
 
@@ -134,7 +134,7 @@ func (suite *TaskServiceTestSuite) TestDeleteTask_InvalidID() {
 
 // TestAddTask_ValidStatus tests the AddTask method with a valid status
 func (suite *TaskServiceTestSuite) TestAddTask_ValidStatus() {
-	task := domain.Task{Title: "New Task", Status: "pending", Description: "Updated Description", DueDate: time.Now()}
+	task := domain.Task{Title: "New Task", Status: "pending", Description: "Updated Description", DueDate: time.Now().UTC()}
 
 	suite.mockRepo.On("AddTask", mock.AnythingOfType("domain.Task")).Return(&task, nil)
 

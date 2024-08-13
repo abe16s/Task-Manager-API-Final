@@ -68,7 +68,7 @@ func (suite *JwtServiceSuite) TestValidateToken_InvalidToken() {
 
 func (suite *JwtServiceSuite) TestValidateToken_ExpiredToken() {
 	// Generate a token with a very short expiration time
-	expirationTime := time.Now().Add(-1 * time.Minute).Unix()
+	expirationTime := time.Now().UTC().Add(-1 * time.Minute).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": "testuser",
 		"is_admin": true,

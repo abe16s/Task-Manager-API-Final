@@ -35,8 +35,8 @@ func (suite *TaskControllerSuite) SetupTest() {
 
 func (suite *TaskControllerSuite) TestGetTasks_Success() {
 	tasks := []domain.Task{
-		{ID: uuid.New(), Title: "Task 1", Description: "Description 1", Status: "pending", DueDate: time.Now().Truncate(0)},
-		{ID: uuid.New(), Title: "Task 2", Description: "Description 2", Status: "done", DueDate: time.Now().Truncate(0)},
+		{ID: uuid.New(), Title: "Task 1", Description: "Description 1", Status: "pending", DueDate: time.Now().UTC().Truncate(0)},
+		{ID: uuid.New(), Title: "Task 2", Description: "Description 2", Status: "done", DueDate: time.Now().UTC().Truncate(0)},
 	}
 
 	suite.mockService.On("GetTasks").Return(tasks, nil)
@@ -56,7 +56,7 @@ func (suite *TaskControllerSuite) TestGetTasks_Success() {
 
 func (suite *TaskControllerSuite) TestGetTaskById_Success() {
 	id := uuid.New()
-	task := &domain.Task{ID: id, Title: "Task 1", Description: "Description 1", Status: "pending", DueDate: time.Now().Truncate(0)}
+	task := &domain.Task{ID: id, Title: "Task 1", Description: "Description 1", Status: "pending", DueDate: time.Now().UTC().Truncate(0)}
 
 	suite.mockService.On("GetTaskById", id).Return(task, nil)
 
@@ -104,7 +104,7 @@ func (suite *TaskControllerSuite) TestGetTaskById_InvalidUUID() {
 
 
 func (suite *TaskControllerSuite) TestAddTask_Success() {
-	task := &domain.Task{ID: uuid.New(), Title: "New Task", Description: "New Description", Status: "pending", DueDate: time.Now()}
+	task := &domain.Task{ID: uuid.New(), Title: "New Task", Description: "New Description", Status: "pending", DueDate: time.Now().UTC()}
 
 	suite.mockService.On("AddTask", mock.AnythingOfType("domain.Task")).Return(task, nil)
 
@@ -137,7 +137,7 @@ func (suite *TaskControllerSuite) TestAddTask_InvalidJSON() {
 }
 
 func (suite *TaskControllerSuite) TestAddTask_ValidationErrors() {
-    invalidTask := domain.Task{Status: "completed", DueDate: time.Now()}
+    invalidTask := domain.Task{Status: "completed", DueDate: time.Now().UTC()}
     taskJSON, _ := json.Marshal(invalidTask)
 
     w := httptest.NewRecorder()
@@ -156,7 +156,7 @@ func (suite *TaskControllerSuite) TestAddTask_ValidationErrors() {
 
 func (suite *TaskControllerSuite) TestUpdateTaskByID_Success() {
 	id := uuid.New()
-	task := domain.Task{ID: id, Title: "Updated Task", Description: "Updated Description", Status: "completed", DueDate: time.Now()}
+	task := domain.Task{ID: id, Title: "Updated Task", Description: "Updated Description", Status: "completed", DueDate: time.Now().UTC()}
 
 	suite.mockService.On("UpdateTaskByID", id, mock.AnythingOfType("domain.Task")).Return(nil)
 
@@ -209,7 +209,7 @@ func (suite *TaskControllerSuite) TestUpdateTaskByID_InvalidJSON() {
 func (suite *TaskControllerSuite) TestUpdateTaskByID_ValidationErrors() {
     id := uuid.New()
     // Missing required fields (e.g., Title, Description)
-    invalidTask := domain.Task{Status: "completed", DueDate: time.Now()}
+    invalidTask := domain.Task{Status: "completed", DueDate: time.Now().UTC()}
     taskJSON, _ := json.Marshal(invalidTask)
 
     w := httptest.NewRecorder()
