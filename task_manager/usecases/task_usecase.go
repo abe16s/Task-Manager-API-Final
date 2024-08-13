@@ -7,6 +7,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type TaskServiceInterface interface {
+	GetTasks() ([]domain.Task, error)
+	GetTaskById(id uuid.UUID) (*domain.Task, error)
+	UpdateTaskByID(id uuid.UUID, updatedTask domain.Task) error
+	DeleteTask(id uuid.UUID) error
+	AddTask(task domain.Task) (*domain.Task, error)
+}
+
 type TaskService struct {
 	TaskRepo TaskRepoInterface
 }

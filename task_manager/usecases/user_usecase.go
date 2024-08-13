@@ -4,14 +4,19 @@ import (
 	"errors"
 
 	"github.com/abe16s/Go-Backend-Learning-path/task_manager/domain"
-	"github.com/abe16s/Go-Backend-Learning-path/task_manager/infrastructure"
 	"github.com/google/uuid"
 )
 
+type UserServiceInterface interface {
+	RegisterUser(user *domain.User) (*domain.User, error)
+	LoginUser(user domain.User) (string, error)
+	PromoteUser(username string) error
+}
+
 type UserService struct {
 	UserRepo UserRepoInterface
-	PasswordService infrastructure.PasswordServiceInterface
-	JwtService infrastructure.JwtServiceInterface
+	PasswordService PasswordServiceInterface
+	JwtService JwtServiceInterface
 }
 
 // register new user with unique username and password
