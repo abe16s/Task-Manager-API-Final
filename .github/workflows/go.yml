@@ -10,17 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      mongo:
-        image: mongo:6.0
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
     - name: Check out code
       uses: actions/checkout@v3
@@ -39,10 +28,7 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
-
-    - name: Wait for MongoDB to be ready
-      run: until mongo --eval "print(\"waited for connection\")"; do sleep 5; done
-
+      
     - name: Install dependencies
       run: go mod tidy
 
