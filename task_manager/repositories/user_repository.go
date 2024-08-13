@@ -131,10 +131,14 @@ func (ur *UserRepository) PromoteUser(username string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	_, err := ur.collection.UpdateOne(ctx, bson.D{{Key: "username", Value: username}}, bson.D{{Key: "$set", Value: bson.M{"is_admin": true}}})
+	result, err := ur.collection.UpdateOne(ctx, bson.D{{Key: "username", Value: username}}, bson.D{{Key: "$set", Value: bson.M{"is_admin": true}}})
 	if err != nil {
 		return err
 	}
 
+	if result.MatchedCount == 0 {
+		return errors.New("username not found")
+	} 
+	
 	return nil
 }

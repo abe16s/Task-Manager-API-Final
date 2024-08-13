@@ -80,6 +80,10 @@ func (con *UserController) PromoteUser(c *gin.Context) {
 	username := c.Query("username")
 	err := con.Service.PromoteUser(username)
 	if err != nil {
+		if err.Error() =="username not found" {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
