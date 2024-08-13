@@ -29,6 +29,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
+    - name: Change to task_manager directory
+      working-directory: ./task_manager
+      run: echo "Changed directory to ./task_manager"
+      
     - name: Install dependencies
       run: go mod tidy
 
